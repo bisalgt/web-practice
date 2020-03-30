@@ -7,6 +7,8 @@ verify_ssl = true
 
 [packages]
 django = "==2.2.2"
+requests = "*"
+scikit-learn = "*"
 
 [requires]
 python_version = "3.7"
