@@ -9,8 +9,6 @@ verify_ssl = true
 django = "==2.2.2"
 requests = "*"
 scikit-learn = "*"
-djangorestframework = "==3.10"
-djangorestframework-simplejwt = "*"
 
 [requires]
 python_version = "3.7"

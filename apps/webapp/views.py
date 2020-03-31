@@ -16,12 +16,13 @@ warnings.filterwarnings('ignore')
 
 # Create your views here.
 
-def home(request, str):
-	print(request)
-	print('----------')
-	print(str)
+def home(request, id, slug):
+	print(id)
+	# print(request)
+	# print('----------')
+	# print(str)
 	# print(dir(request))
-	print('-----------------')
+	# print('-----------------')
 	# print(request.path)
 	# print(request.user)
 	url = 'http://promech:6p{f(SDz>7$E9JJd@35.154.93.222/api/v1.1/quiz/?subject_id=47&per_page=54&page=1'
@@ -45,9 +46,6 @@ def home(request, str):
 	stopwords = nlp.Defaults.stop_words
 	# print(len(stopwords))
 
-	#
-
-	slug = 'population-of-nepal'
 	url_slug_split = slug.split('-')
 
 	user_input = ' '.join(url_slug_split)
