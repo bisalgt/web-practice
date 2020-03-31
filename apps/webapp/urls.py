@@ -4,5 +4,5 @@ from apps.webapp import views
 
 
 urlpatterns = [
-	path('',views.home),
+	path('<str:str>/',views.home),
 ]
