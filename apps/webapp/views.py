@@ -36,9 +36,11 @@ try:
         db_Info = connection.get_server_info()
         print("Connected to MySQL Server version ", db_Info)
         cursor = connection.cursor()
-        cursor.execute("select * from quizes where sub_id=15;")
+        cursor.execute("select * from quizes;")
         result = cursor.fetchall()
         print(len(result))
+        print(type(result))
+        print(type(result[1]))
 
 except Exception as e:
     print("Error while connecting to MySQL", e)
@@ -56,6 +58,8 @@ except Exception as e:
 # print(connection)
 # @ratelimit(key=key_finder(), rate='3/m')
 def home(request):
+
+	# print(result[1])
 	# global nlp
 	# global stopwords
 	# print(id)
@@ -65,41 +69,12 @@ def home(request):
 	# print(dir(request))
 	# print(request.body.decode("utf-8"))
 	body_in_bytes = request.body
-
 	body_in_json = body_in_bytes.decode('utf-8')
-	# print(body_in_str, type(body_in_str))
-	# body_json = json.dumps(body_in_str)
 	body = json.loads(body_in_json)
-	print(body, type(body))
-	# print(request._current_scheme_host) # current ip of host
-	# print(request.META['HTTP_HOST'])
-	# print('-----------------')
-	# print(request.path)
-	# print(request.user)
-	url = 'http://promech:6p{f(SDz>7$E9JJd@35.154.93.222/api/v1.1/quiz/?subject_id=47&per_page=54&page=1'
-	r = requests.get(url).json()
-	# print(dir(r))
-	# print(r)
-	# print(len(r))
-	total_number_of_question = len(r["data"])
-	question_listed = list()
-	for i in range(total_number_of_question):
-		question_listed.append(r["data"][i]["question"])
-	# print(question_listed)
-
-	# first time 
-	# setup('en')
-	# nltk.download('punkt')
+	# print(body, type(body))
 
 
-
-	# nlp = spacy.load('en_core_web_sm')
-	# stopwords = nlp.Defaults.stop_words
-	# print(len(stopwords))
-
-	url_slug_split = slug.split('-')
-
-	user_input = ' '.join(url_slug_split)
+	user_input = body["question"]
 	user_input_without_punctuation = user_input.translate(str.maketrans('', '', string.punctuation))
 	user_input_tokenized = word_tokenize(user_input_without_punctuation)
 
@@ -112,9 +87,60 @@ def home(request):
 	            required_user_input.append(data)
 
 	final_user_input = " ".join(required_user_input)
-	# print(final_user_input)
+	print(final_user_input)
 
-	questions_from_database = [question.lower() for question in question_listed]
+
+
+	# print(dir(request))
+	# print(request.body)
+	
+	# print(body_in_json, type(body_in_json))
+	# body_json = json.dumps(body_in_json)
+
+	# print(body_json)
+
+
+	
+
+	
+	# a = [question[2] for question in question_by_sub]
+
+	# print(request._current_scheme_host) # current ip of host
+	# print(request.META['HTTP_HOST'])
+	# print('-----------------')
+	# print(request.path)
+	# print(request.user)
+	# url = 'http://promech:6p{f(SDz>7$E9JJd@35.154.93.222/api/v1.1/quiz/?subject_id=47&per_page=54&page=1'
+	# r = requests.get(url).json()
+	# print(dir(r))
+	# print(r)
+	# print(len(r))
+	# total_number_of_question = len(r["data"])
+	# question_listed = list()
+	# for i in range(total_number_of_question):
+	# 	question_listed.append(r["data"][i]["question"])
+	# print(question_listed)
+
+	# first time 
+	# setup('en')
+	# nltk.download('punkt')
+
+
+
+	# nlp = spacy.load('en_core_web_sm')
+	# stopwords = nlp.Defaults.stop_words
+	# print(len(stopwords))
+	# slug = 'nepal-is-awesome'
+	# url_slug_split = slug.split('-')
+
+
+	question_by_sub = [question for question in result if list(question)[1]==body["id"]]
+	# print(len(question_by_sub))
+	# print(question_by_sub[0][2])
+
+	question_by_sub_dict = { question[0]:question[2].lower() for question in question_by_sub}
+
+	questions_from_database = list(question_by_sub_dict.values())
 	# print(questions_from_database)
 
 	questions_from_database_punctuation_removed = []
@@ -142,15 +168,18 @@ def home(request):
 
 	# print(required_questions_from_database)
 
+	print(final_user_input)
+
 	similar_questions = []
 	for i,j in enumerate(required_questions_from_database):
 	    value = get_sentence_similarity(final_user_input, j, 'en')
 	    if value>0.6 and value < 1.0:
 	        temp_dict = dict()
+	        # temp_id["Id"] = question_by_sub_dict
 	        temp_dict["Question"] = questions_from_database[i]
 	        temp_dict["Similarity Percentage"] = int(value*100)
 	        similar_questions.append(temp_dict)
-	# print(similar_questions)
+	print(similar_questions)
 
 	final_list = sorted(similar_questions, key=lambda k: k['Similarity Percentage'], reverse = True)
 
