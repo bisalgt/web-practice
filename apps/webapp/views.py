@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 
-from ratelimit.decorators import ratelimit
+# from ratelimit.decorators import ratelimit
 
-import requests
+# import requests
 from inltk.inltk import setup
 from inltk.inltk import get_sentence_similarity
 from nltk.corpus import wordnet
@@ -138,9 +138,9 @@ def home(request):
 	# print(len(question_by_sub))
 	# print(question_by_sub[0][2])
 
-	question_by_sub_dict = { question[0]:question[2].lower() for question in question_by_sub}
+	# question_by_sub_dict = { question[0]:question[2].lower() for question in question_by_sub}
 
-	questions_from_database = list(question_by_sub_dict.values())
+	questions_from_database = [question[2].lower() for question in question_by_sub]
 	# print(questions_from_database)
 
 	questions_from_database_punctuation_removed = []
@@ -166,16 +166,15 @@ def home(request):
 	    required_questions = " ".join(required_value_list)
 	    required_questions_from_database.append(required_questions)
 
-	# print(required_questions_from_database)
+	print(required_questions_from_database)
 
-	print(final_user_input)
+	# print(final_user_input)
 
 	similar_questions = []
 	for i,j in enumerate(required_questions_from_database):
 	    value = get_sentence_similarity(final_user_input, j, 'en')
 	    if value>0.6 and value < 1.0:
 	        temp_dict = dict()
-	        # temp_id["Id"] = question_by_sub_dict
 	        temp_dict["Question"] = questions_from_database[i]
 	        temp_dict["Similarity Percentage"] = int(value*100)
 	        similar_questions.append(temp_dict)
