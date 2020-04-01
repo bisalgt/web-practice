@@ -9,6 +9,8 @@ verify_ssl = true
 django = "==2.2.2"
 requests = "*"
 scikit-learn = "*"
+django-ratelimit = "*"
+mysql-connector = "*"
 
 [requires]
 python_version = "3.7"

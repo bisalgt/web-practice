@@ -4,5 +4,5 @@ from apps.webapp import views
 
 
 urlpatterns = [
-	path('<int:id>/<slug:slug>/',views.home),
+	path('suggestor/',views.home),
 ]

@@ -1,27 +1,78 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-import requests
 
+from ratelimit.decorators import ratelimit
+
+import requests
 from inltk.inltk import setup
 from inltk.inltk import get_sentence_similarity
 from nltk.corpus import wordnet
 from nltk.tokenize import word_tokenize
 import nltk
-import pandas as pd
 import spacy
 import string
 
 import warnings
 warnings.filterwarnings('ignore')
 
-# Create your views here.
+nlp = spacy.load('en_core_web_sm')
+stopwords = nlp.Defaults.stop_words
 
-def home(request, id, slug):
-	print(id)
+import mysql.connector
+import json
+
+# # ratelimit key
+# def key_finder(group, request):
+#     return request.META['REMOTE_ADDR'] + request.user.username
+
+
+try:
+    connection = mysql.connector.connect(host='localhost',
+                                         database='quizes',
+                                         user='root'
+                                         )
+
+    if connection.is_connected():
+        db_Info = connection.get_server_info()
+        print("Connected to MySQL Server version ", db_Info)
+        cursor = connection.cursor()
+        cursor.execute("select * from quizes where sub_id=15;")
+        result = cursor.fetchall()
+        print(len(result))
+
+except Exception as e:
+    print("Error while connecting to MySQL", e)
+
+# finally:
+#     if connection.is_connected():
+#         cursor.close()
+#         connection.close()
+#         print("MySQL connection is closed")
+
+
+
+
+
+# print(connection)
+# @ratelimit(key=key_finder(), rate='3/m')
+def home(request):
+	# global nlp
+	# global stopwords
+	# print(id)
 	# print(request)
 	# print('----------')
 	# print(str)
 	# print(dir(request))
+	# print(request.body.decode("utf-8"))
+	body_in_bytes = request.body
+
+	body_in_json = body_in_bytes.decode('utf-8')
+	# print(body_in_str, type(body_in_str))
+	# body_json = json.dumps(body_in_str)
+	body = json.loads(body_in_json)
+	print(body, type(body))
+	# print(request._current_scheme_host) # current ip of host
+	# print(request.META['HTTP_HOST'])
 	# print('-----------------')
 	# print(request.path)
 	# print(request.user)
@@ -37,13 +88,13 @@ def home(request, id, slug):
 	# print(question_listed)
 
 	# first time 
-	setup('en')
-	nltk.download('punkt')
+	# setup('en')
+	# nltk.download('punkt')
 
 
 
-	nlp = spacy.load('en_core_web_sm')
-	stopwords = nlp.Defaults.stop_words
+	# nlp = spacy.load('en_core_web_sm')
+	# stopwords = nlp.Defaults.stop_words
 	# print(len(stopwords))
 
 	url_slug_split = slug.split('-')
