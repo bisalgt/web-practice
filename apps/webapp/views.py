@@ -25,6 +25,8 @@ import json
 # def key_finder(group, request):
 #     return request.META['REMOTE_ADDR'] + request.user.username
 
+from base64 import b64decode
+
 
 try:
     connection = mysql.connector.connect(host='localhost',
@@ -74,7 +76,7 @@ def home(request):
 	# print(body, type(body))
 
 
-	user_input = body["question"]
+	user_input = body["question"].lower()
 	user_input_without_punctuation = user_input.translate(str.maketrans('', '', string.punctuation))
 	user_input_tokenized = word_tokenize(user_input_without_punctuation)
 
@@ -87,8 +89,10 @@ def home(request):
 	            required_user_input.append(data)
 
 	final_user_input = " ".join(required_user_input)
+	
+	print('------------------')
 	print(final_user_input)
-
+	print('-----------------')
 
 
 	# print(dir(request))
@@ -99,8 +103,24 @@ def home(request):
 
 	# print(body_json)
 
-
+	print(dir(request))
+	print(request.method)
+	print(request.headers)
+	print(type(request.headers))
+	print(request.headers['Authorization'])
+	# print(help(base64.decode))
 	
+	print(request.headers['Authorization'].split(' ')[1])
+	print(type(b64decode(request.headers['Authorization'].split(' ')[1]))) # bytes format
+	decoded_data = b64decode(request.headers['Authorization'].split(' ')[1])
+	# print(base64.decode())
+
+	with open('password.txt', 'r') as f:
+		data = f.read()
+		# print(type(data))
+		# print(data)
+		print(b64decode(request.headers['Authorization'].split(' ')[1]), data)
+
 
 	
 	# a = [question[2] for question in question_by_sub]
@@ -184,4 +204,12 @@ def home(request):
 
 	# print(final_list)
 
-	return JsonResponse(final_list, safe=False)
+	final_data = {
+		"status":"OK",
+		"request_method": request.method,
+		"total_matched": len(final_list),
+		"subject_id": body["id"],
+		"data": final_list
+	}
+
+	return JsonResponse(final_data)
