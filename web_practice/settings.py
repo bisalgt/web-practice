@@ -44,7 +44,7 @@ INSTALLED_APPS = [
 
     #custom_app
     'apis.quizes',
-    # 'apps.webapp',
+    'apps.webapp',
 ]
 
 MIDDLEWARE = [

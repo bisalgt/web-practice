@@ -1,11 +1,3 @@
-
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.decorators import authentication_classes, permission_classes
-from rest_framework.authentication import BasicAuthentication
-from rest_framework.permissions import IsAuthenticated
-
-
 from gensim.models import word2vec, KeyedVectors
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
@@ -19,40 +11,11 @@ import string
 import mysql.connector
 import json
 
+from django.http import JsonResponse
 
-# stopwords download for use
+
 nltk.download('stopwords')
-# sw contains the list of stopwords 
-sw = stopwords.words('english') 
 
-
-# using the model from the root directory
-model = KeyedVectors.load_word2vec_format("GoogleNews-vectors-negative300.bin", binary = True, limit = 100000)
-index2word_set = set(model.index2word)
-
-
-
-
-# function to average all workds vectors in a given paragraph
-def avg_sentence_vector(words, model, num_features, index2word_set):
-    #function to average all words vectors in a given paragraph
-    featureVec = np.zeros((num_features,), dtype="float32")
-    nwords = 0
-
-    for word in words:
-        if word in index2word_set:
-            nwords = nwords+1
-            featureVec = np.add(featureVec, model[word])
-
-    if nwords>0:
-        featureVec = np.divide(featureVec, nwords)
-    return featureVec
-
-
-
-
-
-# connecting with mysql database and retriving all the questions
 try:
     connection = mysql.connector.connect(host='localhost',
                                          database='quizes',
@@ -73,34 +36,51 @@ except Exception as e:
     print("Error while connecting to MySQL", e)
 
 
+model = KeyedVectors.load_word2vec_format("GoogleNews-vectors-negative300.bin", binary = True, limit = 100000)
+index2word_set = set(model.index2word)
+# sw contains the list of stopwords 
+sw = stopwords.words('english') 
 
 
 
+def avg_sentence_vector(words, model, num_features, index2word_set):
+    #function to average all words vectors in a given paragraph
+    featureVec = np.zeros((num_features,), dtype="float32")
+    nwords = 0
 
-@api_view(['GET','POST'])
-@authentication_classes([BasicAuthentication,])
-@permission_classes([IsAuthenticated,])
-def suggestor(request):
+    for word in words:
+        if word in index2word_set:
+            nwords = nwords+1
+            featureVec = np.add(featureVec, model[word])
 
-	######### user input block ###############
+    if nwords>0:
+        featureVec = np.divide(featureVec, nwords)
+    return featureVec
+
+
+
+def home(request):
+
 	body_in_bytes = request.body
 	body_in_json = body_in_bytes.decode('utf-8')
 	body = json.loads(body_in_json)
-	print(body)
+	
+	#get average vector for sentence 1
 	user_input = body["question"].lower()
 	user_input_without_punctuation = user_input.translate(str.maketrans('', '', string.punctuation))
-	user_input_tokenized = word_tokenize(user_input_without_punctuation)	
+	user_input_tokenized = word_tokenize(user_input_without_punctuation)
+
 	final_user_input = [w for w in user_input_tokenized if not w in sw] 
 	sentence_1_avg_vector = avg_sentence_vector(final_user_input, model=model, num_features=300, index2word_set = index2word_set)
+	# print(sentence_1_avg_vector)
 	s1 = torch.from_numpy(sentence_1_avg_vector)
 
 
-	######## question by subject ###############
 	question_by_sub = [question for question in result if list(question)[1]==body["id"]]
-	questions_from_database = [question[2].lower() for question in question_by_sub]
-	# print(questions_from_database)
 
-	######### similar questions ###########
+	questions_from_database = [question[2].lower() for question in question_by_sub]
+
+
 	similar_questions = []
 	for i,each in enumerate(questions_from_database):
 	    #get average vector for sentence 2
@@ -122,17 +102,8 @@ def suggestor(request):
 	        similar_questions.append(temp_dict)
 
 
-	######## final data ############
 	final_list = sorted(similar_questions, key=lambda k: k['Similarity Percentage'], reverse = True)
-	final_data = {
-		"status_code": Response.status_code,
-		"request_method": request.method,
-		"total_matched": len(final_list),
-		"subject_id": body["id"],
-		"data": final_list
-	}
-
-	return Response(final_data)
+	print(final_list)
 
 
-	
+	return JsonResponse(final_list, safe=False)

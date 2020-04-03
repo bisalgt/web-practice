@@ -14,6 +14,7 @@ mysql-connector = "*"
 htpasswd = "*"
 djangorestframework = "*"
 mysqlclient = "*"
+gensim = "*"
 
 [requires]
 python_version = "3.7"
