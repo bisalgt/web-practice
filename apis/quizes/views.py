@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import JSONParser
 
 
 from gensim.models import word2vec, KeyedVectors
@@ -18,6 +19,8 @@ from nltk.corpus import stopwords
 import string
 import mysql.connector
 import json
+import io
+
 
 
 # stopwords download for use
@@ -84,9 +87,10 @@ def suggestor(request):
 
 	######### user input block ###############
 	body_in_bytes = request.body
-	body_in_json = body_in_bytes.decode('utf-8')
-	body = json.loads(body_in_json)
-	print(body)
+	body_in_json = io.BytesIO(body_in_bytes)
+	body = JSONParser().parse(body_in_json)
+	# print(body)
+
 	user_input = body["question"].lower()
 	user_input_without_punctuation = user_input.translate(str.maketrans('', '', string.punctuation))
 	user_input_tokenized = word_tokenize(user_input_without_punctuation)	
