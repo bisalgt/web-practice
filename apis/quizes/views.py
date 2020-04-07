@@ -115,7 +115,7 @@ def suggestor(request):
 	    # sen1_sen2_similarity =  cosine_similarity(sentence_1_avg_vector.reshape(-1, 1),sentence_2_avg_vector.reshape(-1, 1))
 	    sen1_sen2_similarity = torch.nn.functional.cosine_similarity(s1, s2, dim = 0, eps = 1e-8)
 	    value = sen1_sen2_similarity.item()
-	    if value >=0.8 and value <=1.0:
+	    if value >=0.6 and value <=1.0:
 	        temp_dict = dict()
 	        temp_dict["Question"] = questions_from_database[i]
 	        temp_dict["Similarity Percentage"] = int(value*100)

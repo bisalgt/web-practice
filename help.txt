@@ -1,3 +1,19 @@
-Install inltk using torch version 1.2.0 ; higher version of doesnot runs in the server
-		pip install torch==1.2.0+cpu torchvision==0.4.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
-Then install inltk
+1) System should have python 3.7/ pip/pipenv installed
+2)To create a virtual envt-- pipenv --python 3.7
+3)pipenv install django==2.2.2
+4)create project
+5)pipenv install djangorestframework==3.11.0
+6)pipenv install mysql-connector==2.2.9
+
+7)	To install inltk
+	a)Install inltk using torch version 1.2.0 ; higher version doesnot runs in the server/ throws dependencies error
+		#pip install torch==1.2.0+cpu torchvision==0.4.0+cpu -f https://download.pytorch.org/whl/torch_stable.html.
+	b)Then install inltk
+8)We may need to download scikit-learn
+9)We need to download the Google model, extact and use the .bin file in our project
+		https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit
+
+10) We need to install gensim
+		pipenv install gensim==3.8.1
+11) If we use mysql database then we need to install mysqlclient
+		pipenv install mysqlclient==1.4.6
