@@ -84,14 +84,33 @@ except Exception as e:
 @authentication_classes([BasicAuthentication,])
 @permission_classes([IsAuthenticated,])
 def suggestor(request):
+	# print(request.data)
 
+	# print(dir(request))
+	# print((request.query_params['id']))
+	# print(type(dict(request.query_params)['id']))
+
+	if request.body or request.query_params:
+		if request.body:
+			print('request.body runs')
+			body_in_bytes = request.body
+			body_in_json = io.BytesIO(body_in_bytes)
+			body = JSONParser().parse(body_in_json)
+		elif request.query_params:
+			print('request.query_params runs')
+			body = {'id':request.query_params['id'], 'question':request.query_params['question']}
+		# elif request.data:
+		# 	body = {'id':request.data['id'], 'question':request.data['question']}
+	# body_1 = request.query_params
+	print(body)
 	######### user input block ###############
-	body_in_bytes = request.body
-	body_in_json = io.BytesIO(body_in_bytes)
-	body = JSONParser().parse(body_in_json)
+	# body_in_bytes = request.body
+	# body_in_json = io.BytesIO(body_in_bytes)
+	# body_2 = JSONParser().parse(body_in_json)
 	# print(body)
 
 	user_input = body["question"].lower()
+	print(user_input)
 	user_input_without_punctuation = user_input.translate(str.maketrans('', '', string.punctuation))
 	user_input_tokenized = word_tokenize(user_input_without_punctuation)	
 	final_user_input = [w for w in user_input_tokenized if not w in sw] 
@@ -100,7 +119,7 @@ def suggestor(request):
 
 
 	######## question by subject ###############
-	question_by_sub = [question for question in result if list(question)[1]==body["id"]]
+	question_by_sub = [question for question in result if list(question)[1]==int(body["id"])]
 	questions_from_database = [question[2].lower() for question in question_by_sub]
 	# print(questions_from_database)
 
